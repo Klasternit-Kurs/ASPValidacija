@@ -1,6 +1,9 @@
 ﻿@page "/unos"
+@inject NavigationManager Nav
 @using Blazored.FluentValidation
 @using FluentValidation
+@using Validacija.Shared
+@using Microsoft.AspNetCore.SignalR.Client
 
 <h3>Unos</h3>
 
@@ -18,38 +21,24 @@
 
 @code 
 {
+	private HubConnection HC;
+
+	protected override async Task OnInitializedAsync()
+	{
+		HC = new HubConnectionBuilder().WithUrl(Nav.ToAbsoluteUri("haaab"))
+									.Build();
+		await HC.StartAsync();
+	}
 
 	public void Val()
 	{
-		Console.WriteLine("Uspesno");
+		HC.SendAsync("Dodaj", NekaOsoba);
 	}
+
 	public void Inv()
 	{
 		Console.WriteLine("Looose");
 	}
 
 	public Osoba NekaOsoba = new Osoba();
-
-
-	public class Validator:AbstractValidator<Osoba>
-	{
-		public Validator()
-		{
-			RuleFor(o => o.Ime).NotEmpty().WithMessage("Ne sme prazno!")
-							.MinimumLength(4).WithMessage("Iznad 3 karaktera!");
-			RuleFor(o => o.Prezime).Must(p => Test(p)).WithMessage("Nope :/");
-
-		}
-
-		public bool Test(string s) =>
-					!string.IsNullOrEmpty(s) && !(s.Length<3);
-
-
-	}
-	public class Osoba
-	{
-		public string Ime { get; set; }
-		public string Prezime { get; set; }
-	}
-
 }
