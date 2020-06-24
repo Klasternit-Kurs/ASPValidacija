@@ -1,0 +1,55 @@
+﻿@page "/unos"
+@using Blazored.FluentValidation
+@using FluentValidation
+
+<h3>Unos</h3>
+
+<p>@NekaOsoba.Ime</p>
+<p>@NekaOsoba.Prezime</p>
+
+<EditForm Model="@NekaOsoba" OnValidSubmit="Val" OnInvalidSubmit="Inv" >
+	<FluentValidationValidator/>
+	<InputText @bind-Value="NekaOsoba.Ime" />
+	<div><ValidationMessage For="() => NekaOsoba.Ime"/></div>
+	<InputText @bind-Value="NekaOsoba.Prezime" />
+	<button type="submit" class="btn-dark">Unos</button>
+</EditForm>
+
+
+@code 
+{
+
+	public void Val()
+	{
+		Console.WriteLine("Uspesno");
+	}
+	public void Inv()
+	{
+		Console.WriteLine("Looose");
+	}
+
+	public Osoba NekaOsoba = new Osoba();
+
+
+	public class Validator:AbstractValidator<Osoba>
+	{
+		public Validator()
+		{
+			RuleFor(o => o.Ime).NotEmpty().WithMessage("Ne sme prazno!")
+							.MinimumLength(4).WithMessage("Iznad 3 karaktera!");
+			RuleFor(o => o.Prezime).Must(p => Test(p)).WithMessage("Nope :/");
+
+		}
+
+		public bool Test(string s) =>
+					!string.IsNullOrEmpty(s) && !(s.Length<3);
+
+
+	}
+	public class Osoba
+	{
+		public string Ime { get; set; }
+		public string Prezime { get; set; }
+	}
+
+}
